@@ -1,14 +1,13 @@
 'use client'
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const callbackUrl = searchParams.get('callbackUrl') || '/dashboard'
-
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -18,15 +17,12 @@ export default function LoginPage() {
     e.preventDefault()
     setError('')
     setLoading(true)
-
     const res = await signIn('credentials', {
       email,
       password,
       redirect: false,
     })
-
     setLoading(false)
-
     if (res?.error) {
       setError('Email atau password salah')
     } else {
@@ -38,28 +34,26 @@ export default function LoginPage() {
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div style={{ width: 360, padding: '2rem', border: '1px solid #eee', borderRadius: 12 }}>
         <h1 style={{ marginBottom: '1.5rem', fontSize: 24, fontWeight: 700 }}>Login</h1>
-
         {error && (
           <p style={{ color: 'red', marginBottom: '1rem', fontSize: 14 }}>{error}</p>
         )}
-
         <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <input
-  type="email"
-  placeholder="Email"
-  value={email}
-  onChange={(e) => setEmail(e.target.value)}
-  required
-  style={{ padding: '0.75rem', borderRadius: 8, border: '1px solid #ddd', fontSize: 15 }}
-/>
-<input
-  type="password"
-  placeholder="Password"
-  value={password}
-  onChange={(e) => setPassword(e.target.value)}
-  required
-  style={{ padding: '0.75rem', borderRadius: 8, border: '1px solid #ddd', fontSize: 15 }}
-/>
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            style={{ padding: '0.75rem', borderRadius: 8, border: '1px solid #ddd', fontSize: 15 }}
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            style={{ padding: '0.75rem', borderRadius: 8, border: '1px solid #ddd', fontSize: 15 }}
+          />
           <button
             type="submit"
             disabled={loading}
@@ -78,12 +72,23 @@ export default function LoginPage() {
             {loading ? 'Memuat...' : 'Login'}
           </button>
         </form>
-
         <p style={{ marginTop: '1rem', fontSize: 14, textAlign: 'center' }}>
           Belum punya akun?{' '}
           <Link href="/register" style={{ color: '#2563eb' }}>Register</Link>
         </p>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <p style={{ fontSize: 16, color: '#666' }}>Loading...</p>
+      </div>
+    }>
+      <LoginContent />
+    </Suspense>
   )
 }
