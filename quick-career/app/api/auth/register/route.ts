@@ -9,7 +9,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Semua field wajib diisi' }, { status: 400 })
   }
 
-  // Cek apakah email sudah terdaftar
+  
   const { data: existing } = await supabase
     .from('users')
     .select('id')
